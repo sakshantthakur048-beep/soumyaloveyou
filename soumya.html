@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Aoumya</title>
+    <style>
+        :root {
+            --violet: #8A2BE2;
+            --pink: #FFC0CB;
+            --gold: #FFD700;
+            --dark-bg: #27123b;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--dark-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overflow-x: hidden;
+            /* Smooth scrolling for the whole page */
+            scroll-behavior: smooth; 
+        }
+
+        /* Fixed 3D Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: auto;
+        }
+
+        /* Floating CSS Flowers (Un-affected by scroll so they constantly fall) */
+        .flower {
+            position: fixed;
+            top: -10%;
+            z-index: 1;
+            font-size: 24px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Scrollable Content Layers */
+        #content-layer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none; /* Lets clicks pass through to the 3D photos */
+        }
+
+        .section-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* The Glassmorphism Cards */
+        .glass-card {
+            background: rgba(15, 3, 25, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 50px;
+            width: 90%;
+            max-width: 700px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+            pointer-events: auto; /* Buttons inside cards need to be clickable */
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 1s ease-out;
+        }
+
+        /* Simple scroll-fade animation class */
+        .glass-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        h1 {
+            color: var(--gold);
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--violet);
+            margin-top: 0;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #ffe6f0;
+            font-size: 1.1rem;
+        }
+
+        /* Music Toggle Button */
+        #music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(46, 8, 72, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--gold);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Modal for clicked photos */
+        #photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        #photo-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #photo-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 3px solid var(--gold);
+            border-radius: 10px;
+            box-shadow: 0 0 30px var(--violet);
+        }
+
+        .close-photo {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 40px;
+            color: var(--pink);
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* Love Letter Controls */
+        .letter-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--violet), var(--pink));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        #page-indicator { color: var(--gold); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Audio Player -->
+    <audio id="bg-music" loop>
+        <source src="waltz2.mp3" type="audio/mpeg">
+    </audio>
+    <button id="music-toggle">🎵 Click anywhere to play</button>
+
+    <!-- 3D Canvas Background -->
+    <div id="canvas-container"></div>
+
+    <!-- Photo Modal Overlay -->
+    <div id="photo-modal">
+        <button class="close-photo" onclick="closePhoto()">×</button>
+        <img id="enlarged-photo" src="" alt="soumya">
+    </div>
+
+    <!-- Scrolling Content -->
+    <div id="content-layer">
+        
+        <!-- Spacer section so you see just the black hole at the very top -->
+        <div class="section-container" style="min-height: 80vh;">
+            <div style="text-align: center; pointer-events: none; margin-top: auto;">
+                <h2 style="color: rgba(255,255,255,0.5); font-weight: 300;">Scroll Down</h2>
+                <div style="color: white; font-size: 24px; animation: bounce 2s infinite;">↓</div>
+            </div>
+        </div>
+
+        <!-- First Meet Section -->
+        <div class="section-container">
+            <div class="glass-card fade-in">
+                <h1>Our First Meet</h1>
+                <p>when we talk with each other 1st time i genuineky feels like you are the one 
+                    . god was on my side when i approces you YOU ARE THE BEST THINS EVER HAPPEND TO ME .</p>
+            </div>
+        </div>
+
+        <!-- Love Story Section -->
+        <div class="section-container">
+            <div class="glass-card fade-in">
+                <h1>Our Love Story</h1>
+                <p>From that first moment to where we are now.
+                     Talk about the late-night conversations, the laughter, 
+                     the small moments that built the foundation of this beautiful story...</p>
+            </div>
+        </div>
+
+        <!-- 18 Love Letters Section -->
+        <div class="section-container" style="margin-bottom: 20vh;">
+            <div class="glass-card fade-in">
+                <h1>18 Letters to soumya</h1>
+                <div style="min-height: 150px;">
+                    <p id="letter-text">Loading...</p>
+                </div>
+                <div class="letter-controls">
+                    <button onclick="changePage(-1)">← Previous</button>
+                    <span id="page-indicator">Page 1 / 18</span>
+                    <button onclick="changePage(1)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // === MUSIC LOGIC ===
+        const bgMusic = document.getElementById('bg-music');
+        const musicToggle = document.getElementById('music-toggle');
+        let musicStarted = false;
+
+        document.body.addEventListener('click', () => {
+            if (!musicStarted) {
+                bgMusic.volume = 0.5;
+                bgMusic.play();
+                musicStarted = true;
+                musicToggle.innerText = '🔊 Music On';
+            }
+        }, { once: true });
+
+        musicToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicToggle.innerText = '🔊 Music On';
+                musicStarted = true;
+            } else {
+                bgMusic.pause();
+                musicToggle.innerText = '🔇 Music Off';
+            }
+        });
+
+        // === FALLING CSS FLOWERS ===
+        function createFlowers() {
+            const flowers = ['🌸', '🌺', '🌷', '✨'];
+            for(let i = 0; i < 25; i++) {
+                let f = document.createElement('div');
+                f.className = 'flower';
+                f.innerText = flowers[Math.floor(Math.random() * flowers.length)];
+                f.style.left = Math.random() * 100 + 'vw';
+                f.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                f.style.animationDelay = Math.random() * 5 + 's';
+                f.style.fontSize = (Math.random() * 15 + 15) + 'px';
+                document.body.appendChild(f);
+            }
+        }
+        createFlowers();
+
+        // === SCROLL REVEAL LOGIC FOR HTML CARDS ===
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        fadeElements.forEach(el => observer.observe(el));
+
+        // === THREE.JS SETUP ===
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050208, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 25; // Pulled back to see the black hole and orbit clearly
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Master group that will rotate on scroll
+        const universeGroup = new THREE.Group();
+        scene.add(universeGroup);
+
+        // === 1. THE BLACK HOLE ===
+        // Center Pitch Black Sphere
+        const bhGeometry = new THREE.SphereGeometry(3, 64, 64);
+        const bhMaterial = new THREE.MeshBasicMaterial({ color: 0xfffff });
+        const blackHole = new THREE.Mesh(bhGeometry, bhMaterial);
+        universeGroup.add(blackHole);
+
+        // Accretion Disk (Rings of Violet, Pink, Gold)
+        const createRing = (innerRad, outerRad, color, opacity) => {
+            const geometry = new THREE.RingGeometry(innerRad, outerRad, 64);
+            const material = new THREE.MeshBasicMaterial({
+                color: color,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: opacity
+            });
+            const ring = new THREE.Mesh(geometry, material);
+            ring.rotation.x = Math.PI / 2.2; // Tilt it slightly
+            return ring;
+        };
+
+        const diskGroup = new THREE.Group();
+        diskGroup.add(createRing(3.2, 4.5, 0x8A2BE2, 0.8)); // Violet inner
+        diskGroup.add(createRing(4.6, 6.0, 0xFFC0CB, 0.5)); // Pink middle
+        diskGroup.add(createRing(6.2, 8.0, 0xFFD700, 0.2)); // Gold outer
+        
+        // Tilt the whole disk system to look 3D
+        diskGroup.rotation.x = 0.3;
+        diskGroup.rotation.z = -0.2;
+        universeGroup.add(diskGroup);
+
+        // === 2. ORBITING PHOTOS ===
+        const photoGroup = new THREE.Group();
+        universeGroup.add(photoGroup);
+
+        const textureLoader = new THREE.TextureLoader();
+        
+        // REPLACE THESE WITH AOUMYA'S PHOTOS
+        const imageUrls = [
+            'WhatsApp Image 2026-07-13 at 6.35.46 PM (1).jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.46 PM.jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.47 PM.jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.47 PM (2).jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.49 PM.jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.48 PM (1).jpeg',
+            'WhatsApp Image 2026-07-13 at 6.35.47 PM (1).jpeg',
+        ];
+
+        const photos = [];
+        const orbitRadius = 12; // Distance from black hole
+
+        imageUrls.forEach((url, index) => {
+            const angle = (index / imageUrls.length) * Math.PI * 2;
+            
+            const geometry = new THREE.PlaneGeometry(3.5, 4.5); // Slightly larger frames
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.95
+            });
+
+            textureLoader.load(url, (texture) => {
+                material.map = texture;
+                material.needsUpdate = true;
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            mesh.position.x = Math.cos(angle) * orbitRadius;
+            mesh.position.z = Math.sin(angle) * orbitRadius;
+            // Add a slight vertical variation to the orbit
+            mesh.position.y = Math.sin(angle * 2) * 2; 
+            
+            // Make photos face outward from the black hole
+            mesh.rotation.y = -angle + Math.PI / 2;
+            
+            mesh.userData = { isPhoto: true, url: url };
+
+            photoGroup.add(mesh);
+            photos.push(mesh);
+        });
+
+        // === 3. GALAXY STARS ===
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 3000;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorsArray = new Float32Array(particlesCount * 3);
+        const themeColors = [new THREE.Color('#8A2BE2'), new THREE.Color('#FFC0CB'), new THREE.Color('#FFD700')];
+
+        for(let i = 0; i < particlesCount * 3; i+=3) {
+            posArray[i] = (Math.random() - 0.5) * 150;
+            posArray[i+1] = (Math.random() - 0.5) * 150;
+            posArray[i+2] = (Math.random() - 0.5) * 150;
+            const rc = themeColors[Math.floor(Math.random() * themeColors.length)];
+            colorsArray[i] = rc.r; colorsArray[i+1] = rc.g; colorsArray[i+2] = rc.b;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.2, vertexColors: true, transparent: true, opacity: 0.7
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        universeGroup.add(particlesMesh);
+
+        // === 4. RAYCASTING (CLICKING PHOTOS) ===
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            // Only check intersection with the photos
+            const intersects = raycaster.intersectObjects(photoGroup.children);
+
+            if (intersects.length > 0) {
+                const clicked = intersects[0].object;
+                if(clicked.userData.isPhoto) {
+                    const modal = document.getElementById('photo-modal');
+                    document.getElementById('enlarged-photo').src = clicked.userData.url;
+                    modal.classList.add('active');
+                }
+            }
+        });
+
+        function closePhoto() {
+            document.getElementById('photo-modal').classList.remove('active');
+        }
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // === 5. SCROLL EVENT TRACKING ===
+        let scrollPercent = 0;
+        document.body.onscroll = () => {
+            // Calculate how far down the page the user has scrolled (0.0 to 1.0)
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+            scrollPercent = scrollTop / (scrollHeight - clientHeight);
+        };
+
+        // === 6. ANIMATION LOOP ===
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Constant passive rotation so it looks alive even when not scrolling
+            diskGroup.rotation.z += 0.005; 
+            particlesMesh.rotation.y += 0.0005;
+            photoGroup.rotation.y += 0.002;
+
+            // SCROLL DRIVEN ROTATION: 
+            // The entire universe group rotates based on scroll percentage
+            // We use interpolation (lerp) so the rotation smooths into place
+            const targetRotationY = scrollPercent * Math.PI * 4; // 2 full spins total during scroll
+            const targetRotationX = scrollPercent * 0.5;         // slight tilt down
+
+            universeGroup.rotation.y += (targetRotationY - universeGroup.rotation.y) * 0.05;
+            universeGroup.rotation.x += (targetRotationX - universeGroup.rotation.x) * 0.05;
+
+            // Make photos bob up and down independently
+            const time = Date.now() * 0.001;
+            photos.forEach((photo, i) => {
+                photo.position.y = Math.sin((time * 0.5) + i) * 1.5;
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // === 7. 18 PAGES LOVE LETTER LOGIC ===
+        const totalPages = 18;
+        let currentPage = 1;
+        
+        const loveLetters = [];
+        for(let i = 1; i <= totalPages; i++) {
+            loveLetters.push(`My dearest Soumya,<br><br>18 years ago <br> a star was born  a heart so pure <br>
+            ,a soul adorend${i}.
+            
+          
+            <br><br>Forever yours,<br>Sakshant`,
+        `tiny handa tiny feet , a little smile so soft and sweet`,
+    `like a flower kissed by spring , you became life's sweetest thing `,
+    `Your smile is where my worries end ,<br>
+    my favourate place , my closest friend`,
+    `your eyes hold stars , the moon , the sea,<br> a thousand dreams that comfert me `,
+    `beauty fades with passing days ,<br>but your heart shines endless rays `,
+    
+    );
+        }
+
+        const letterTextElement = document.getElementById('letter-text');
+        const pageIndicator = document.getElementById('page-indicator');
+        letterTextElement.style.transition = 'opacity 0.3s ease';
+
+        function updateLetterView() {
+            letterTextElement.style.opacity = 0;
+            setTimeout(() => {
+                letterTextElement.innerHTML = loveLetters[currentPage - 1];
+                pageIndicator.innerText = `Page ${currentPage} / ${totalPages}`;
+                letterTextElement.style.opacity = 1;
+            }, 300);
+        }
+
+        window.changePage = function(direction) {
+            currentPage += direction;
+            if (currentPage > totalPages) currentPage = 1;
+            if (currentPage < 1) currentPage = totalPages;
+            updateLetterView();
+        }
+
+        updateLetterView();
+
+    </script>
+</body>
+</html>
